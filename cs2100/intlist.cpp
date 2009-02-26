@@ -24,6 +24,27 @@ private:
 public:
      /* Class to access the elements of the list.*/
      class Iterator {
+     public:
+	  char flag;
+               // iter.flag is a char and meanings of flags is as follows
+               /* +----+----------------------+ */
+               /* |flag| meaning of the flag  | */
+               /* +----+----------------------+ */
+               /* | n  | a normal iterator    | */
+               /* +----+----------------------+ */
+               /* | r  | a raw iterotar; ie,  | */
+               /* |    |that returned by the  | */
+               /* |    |construtcter.         | */
+               /* +----+----------------------+ */
+               /* | h  | iterator pointing to | */
+               /* |    |head on decrement will| */
+               /* |    |have this flag        | */
+               /* +----+----------------------+ */
+               /* | t  | iterator pointing to | */
+               /* |    |tail on increment will| */
+               /* |    |have this flag        | */
+               /* +----+----------------------+ */
+
      private:
 	  Node * curr_node;
      public:
@@ -31,12 +52,14 @@ public:
 	  /* Constructors */
 	  Iterator()
 	       {
+		    flag = 'r';
 		    curr_node = NULL;
 	       }
 	  
 	  /* Copy constructor */
 	  Iterator(const Iterator & given_iter)
 	       {
+		    flag = given_iter.flag;
 		    curr_node = given_iter.curr_node;
 	       }
 	  
@@ -54,6 +77,7 @@ public:
 			 node = NULL;
 		    }
 		    curr_node = node;
+		    flag = given_iter.flag;
 		    return *this;
 	       }
 	  
@@ -67,6 +91,9 @@ public:
 			 exit(1);
 		    }
 		    curr_node = curr_node->next;
+		    if (! curr_node){ // curr_node being NULL means that the iter was head initially
+			 flag = 'h';
+		    }
 		    return *this;
 	       }
 	  
@@ -78,6 +105,9 @@ public:
 		    }
 		    Iterator temp = *this;
 		    curr_node = curr_node->next;
+		    if (! curr_node){ // curr_node being NULL means that the iter was head initially
+			 flag = 'h';
+		    }
 		    return temp;
 	       }
 
@@ -89,6 +119,9 @@ public:
 		    }
 		    Iterator temp = *this;
 		    curr_node = curr_node->prev;
+		    if (! curr_node){ // curr_node being NULL means that the iter was tail initially
+			 flag = 't';
+		    }
 		    return temp;
 	       }
 	  
@@ -99,6 +132,9 @@ public:
 			 exit(1);
 		    }
 		    curr_node = curr_node->prev;
+		    if (! curr_node){ // curr_node being NULL means that the iter was tail initially
+			 flag = 't';
+		    }
 		    return *this;
 	       }
 	  
@@ -312,6 +348,7 @@ public:
 	  {
 	       Iterator iter;
 	       iter.curr_node = head;
+	       iter.flag = 'n';
 	       return iter;
 	  }
      
@@ -319,6 +356,7 @@ public:
 	  {
 	       Iterator iter;
 	       iter.curr_node = tail;
+	       iter.flag = 'n';
 	       return iter;
 	  }
 
@@ -373,25 +411,25 @@ public:
 	       delete tail;
 	  }
 
-     // Print the list (for debugging purposes)
-//      void print()
-// 	  {
-// 	       Iterator iter =  begin();
-// 	       Iterator iter2 = end();
-// 	       if ( ! iter.curr_node ){
-// 		    cout << "Empty list. Nothing to print." << endl;
-// 	       }
-// 	       else{
+     //Print the list (for debugging purposes)
+     // void print()
+     // 	  {
+     // 	       Iterator iter =  begin();
+     // 	       Iterator iter2 = end();
+     // 	       if ( ! iter.curr_node ){
+     // 		    cout << "Empty list. Nothing to print." << endl;
+     // 	       }
+     // 	       else{
 		    
-// 		    cout << iter.curr_node->data << " ";
-// 		    do{
-// 			 iter++;
-// 			 cout << iter.curr_node->data << " ";
-// 		    }		    		    
-// 		    while (iter != iter2);
-// 		    cout << endl;
-// 	       }
-// 	  }
+     // 		    cout << iter.curr_node->data << " ";
+     // 		    do{
+     // 			 iter++;
+     // 			 cout << iter.curr_node->data << " ";
+     // 		    }		    		    
+     // 		    while (iter != iter2);
+     // 		    cout << endl;
+     // 	       }
+     // 	  }
      
 };
 

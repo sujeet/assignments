@@ -68,7 +68,26 @@ public:
      // null node pointers if iterator corrosponding to head is decremented
      // or that corrosponding to the tail is incermented
 
-     Iterator first() const;
+     // iter.flag is a char and meanings of flags is as follows
+     /* +----+----------------------+ */
+     /* |flag| meaning of the flag  | */
+     /* +----+----------------------+ */
+     /* | n  | a normal iterator    | */
+     /* +----+----------------------+ */
+     /* | r  | a raw iterotar; ie,  | */
+     /* |    |that returned by the  | */
+     /* |    |construtcter.         | */
+     /* +----+----------------------+ */
+     /* | h  | iterator pointing to | */
+     /* |    |head on decrement will| */
+     /* |    |have this flag        | */
+     /* +----+----------------------+ */
+     /* | t  | iterator pointing to | */
+     /* |    |tail on increment will| */
+     /* |    |have this flag        | */
+     /* +----+----------------------+ */
+
+     Iterator begin() const;
      Iterator end() const;
 
      /* insert adds an element after the given iterator */
