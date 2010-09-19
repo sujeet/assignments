@@ -1,3 +1,4 @@
+#include <vector>
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -7,20 +8,21 @@
 
 using namespace std;
 
-class Student{
-public:
+class Student
+{
      string id;
      string name;
      string address;
      string birth_date;
      string cgpa;
+public:
      Student (string id, string name, string address, string birth_date, string cgpa)
 	  {
-	       id = id;
-	       name = name;
-	       address = address;
-	       birth_date = birth_date;
-	       cgpa = cgpa;
+	       this->id = id;
+	       this->name = name;
+	       this->address = address;
+	       this->birth_date = birth_date;
+	       this->cgpa = cgpa;
 	  }
      Student ()
 	  {
@@ -30,7 +32,7 @@ public:
 	       birth_date = "";
 	       cgpa = "";
 	  }
-     void print_record()
+     void printRecord()
 	  {
 	       cout <<"id            : "<<id<<"\n";
 	       cout <<"name          : "<<name<<"\n";
@@ -38,60 +40,72 @@ public:
 	       cout <<"date of birth : "<<birth_date<<"\n";
 	       cout <<"cgpa          : "<<cgpa<<"\n";
 	  }
-
+     string getId()
+	  {
+	       return id;
+	  }
 };
 
-
-
-int search_by_id (string id, int no_of_students, Student* archive )
+class StudentDB
 {
-     int i = 0;
-     while (i<no_of_students){
-	  if (archive[i].id == id){
-	       archive[i].print_record();
-	       return 0;
+     vector<Student> database;
+public :
+     Student searchById(string id)
+	  {
+	       int i;
+	       for (i=0; i<database.size(); i++){
+		    if ( database[i].getId() == id ){
+			 return database[i];
+		    }
+	       }
+	       string err = "not found";
+	       Student no_one = Student(err, err, err, err, err);
+	       return no_one;
 	  }
-	  i++;
-     }
-     cout << "Student not in record\n";
-     return 1;
-}
-
+     void populateFromFile(char* filename, int population, char delimiter)
+	  {
+	       ifstream file;
+	       string id, name, address, birth_date, cgpa;
+	       Student student;
+	       int i = 0;
+	       file.open(filename);
+	       if ( !file ){
+		    cout << "The file " << filename << " does not exist.\n";
+		    exit(0);
+	       }
+	       while ( (!file.eof()) && (i<population) ){
+		    getline (file, id, delimiter);
+		    getline (file, name, delimiter);
+		    getline (file, address, delimiter);
+		    getline (file, birth_date, delimiter);
+		    getline (file, cgpa);
+		    student = Student(id, name, address, birth_date, cgpa);
+		    database.push_back(student);
+		    i++;
+	       }
+	  }
+};
 
 int main (int argc, char* argv[])
 {
-     ifstream data;
-     if ( argc >= 3 ){
+     if ( argc == 3 ){
           int no_of_students = atoi(argv[2]);
- 	  Student* archive = new Student [no_of_students];
-	  data.open ( argv[1] );
-	  if ( !data ){
-	       cout << "the file " << argv[1] << " does not exist.\n";
-	       return 1;
-	  }
-	  int i = 0;
-	  while ( ( !data.eof() )&&( i<no_of_students ) ){
-	       getline (data, archive[i].id, '|');
-	       getline (data, archive[i].name, '|');
-	       getline (data, archive[i].address, '|');
-	       getline (data, archive[i].birth_date, '|');
-	       getline (data, archive[i].cgpa);
-	       i++;
-	  }
-	  string command ;
+	  StudentDB database;
+	  string id ;
+	  database.populateFromFile(argv[1], no_of_students, '|');
 	  cout << "Please enter the id or type 'exit' to exit.\n";
-	  cin >> command;
-	  while ( command != "exit"){
-	       search_by_id(command, no_of_students, archive);
+	  cin >> id;
+	  while ( id != "exit" ){
+	       database.searchById(id).printRecord();
 	       cout << "\n";
-	       cin >> command;
+	       cin >> id;
 	  }
      }
      else {
-	  cout << "please give proper command line arguments\n";
+	  cout << "Please give proper command line arguments\n";
      }
      return 0;
 }
-
+     
 	  
  
