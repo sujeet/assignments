@@ -21,36 +21,36 @@ public:
       * for this as we want to keep the pointers to the nodes private.
       */
      class Iterator {
-     public:
+     private:
 	  Node * curr_node;
      public:
+	  friend class IntList;
 	  /* Constructors */
 	  Iterator()
 	       {
-		    Node * node = new Node();
-		    curr_node = node;
+		    curr_node = 0;
 	       }
 	  
-	  Iterator(Node * node)
-	       {
-		    curr_node = node;
-	       }
+// 	  Iterator(Node * node)
+// 	       {
+// 		    curr_node = node;
+// 	       }
 	  
 	  /* Copy constructor */
-	  Iterator(const Iterator & given_iterator)
+	  Iterator(const Iterator & given_iter)
 	       {
-		    curr_node = given_iterator.curr_node;
+		    curr_node = given_iter.curr_node;
 	       }
 	  
  
 	  /* Assignment operator */
-	  Iterator operator=(const Iterator & given_iterator)
+	  Iterator operator=(const Iterator & given_iter)
 	       {
 		    Node * node = new Node();
-		    if(given_iterator.curr_node != 0){
-			 node->data = given_iterator.curr_node->data;
-			 node->next = given_iterator.curr_node->next;
-			 node->prev = given_iterator.curr_node->prev;
+		    if(given_iter.curr_node != 0){
+			 node->data = given_iter.curr_node->data;
+			 node->next = given_iter.curr_node->next;
+			 node->prev = given_iter.curr_node->prev;
 		    }
 		    else {
 			 node = 0;
@@ -62,7 +62,7 @@ public:
 
 	  /* Prefix and postfix operators, to move forward and backward in the list
 	   */
-	  Iterator operator++()
+	  Iterator operator++() // prefix
 	       {
 		    if (! curr_node){
 			 cerr << "Error : End of the list. Can't incerment further;" << endl;
@@ -72,27 +72,29 @@ public:
 		    return *this;
 	       }
 	  
-	  Iterator operator++(int n)
+	  Iterator operator++(int n) // postfix
 	       {
 		    if (! curr_node){
 			 cerr << "Error : End of the list. Can't incerment further;" << endl;
 			 exit(1);
 		    }
+		    Iterator temp = *this;
 		    curr_node = curr_node->next;
-		    return *this;
+		    return temp;
 	       }
 
-	  Iterator operator--()
+	  Iterator operator--(int n) // postfix
 	       {
 		    if (! curr_node){
 			 cerr << "Error : Beginning of the list. Can't decerment further;" << endl;
 			 exit(1);
 		    }
+		    Iterator temp = *this;
 		    curr_node = curr_node->prev;
-		    return *this;
+		    return temp;
 	       }
 	  
-	  Iterator operator--(int n)
+	  Iterator operator--() // prefix
 	       {
 		    if (! curr_node){
 			 cerr << "Error : Beginning of the list. Can't decerment further;" << endl;
@@ -116,20 +118,20 @@ public:
 	  
 
 	  /* Operators to compare two iterators */
-	  bool operator==(Iterator & given_iterator) const
+	  bool operator==(Iterator & given_iter) const
 	       {
-		    if (( !curr_node )&&( given_iterator.curr_node )){
+		    if (( !curr_node )&&( given_iter.curr_node )){
 			      return false;
 			 }
-		    if (( curr_node )&&( !given_iterator.curr_node)){
+		    if (( curr_node )&&( !given_iter.curr_node)){
 			      return false;
 			 }
-		    if (( !curr_node )&&( !given_iterator.curr_node)){		    
+		    if (( !curr_node )&&( !given_iter.curr_node)){		    
 			      return true;
 			 }
-		    bool condition = (   curr_node->data == given_iterator.curr_node->data
-                                      && curr_node->next == given_iterator.curr_node->next
-				      && curr_node->prev == given_iterator.curr_node->prev);
+		    bool condition = (   curr_node->data == given_iter.curr_node->data
+                                      && curr_node->next == given_iter.curr_node->next
+				      && curr_node->prev == given_iter.curr_node->prev);
 		    if (condition) {
 			      return true;
 			 }
@@ -137,9 +139,9 @@ public:
 	       }
 	  
 		    
-	  bool operator!=(Iterator & given_iterator) const
+	  bool operator!=(Iterator & given_iter) const
 	       {
-		    return !(*this == given_iterator);
+		    return !(*this == given_iter);
 	       }
 	  
      };
@@ -227,12 +229,17 @@ public:
 		    cerr << "Error : Can not pop from an empty list." << endl;
 		    exit(1);
 	       }
+	       Node * temp = tail;
 	       int data = tail->data;
 	       tail = tail->prev;
 	       if (! tail){
+		    head = tail;
+	       }
+	       else{
 		    tail->next = 0;
 	       }
 	       length--;
+	       delete temp;
 	       return data;
 	  }
 	       
@@ -242,12 +249,17 @@ public:
 		    cerr << "Error : Can not pop from an empty list." << endl;
 		    exit(1);
 	       }
+	       Node * temp = head;
 	       int data = head->data;
 	       head = head->next;
 	       if (! head){
+		    tail = head;
+	       }
+	       else {
 		    head->prev = 0;
 	       }
 	       length--;
+	       delete temp;
 	       return data;
 	  }
 
@@ -258,6 +270,8 @@ public:
 	       while(length){
 		    x = pop_front();
 	       }
+	       head = 0;
+	       tail = 0;
 	  }
      
 
@@ -270,18 +284,16 @@ public:
       */
      Iterator begin() const
 	  {
-	       // Iterator *iter = new Iterator( head );
-	       // return *iter;
-	       return Iterator(head);
-	       
+	       Iterator *iter = new Iterator();
+	       iter->curr_node = head;
+	       return *iter;
 	  }
      
      Iterator end() const
 	  {
-	       // Iterator *iter = new Iterator( tail );
-	       // return *iter;
-	       return Iterator(tail);
-	       
+	       Iterator *iter = new Iterator();
+	       iter->curr_node = tail;
+	       return *iter;
 	  }
 
      /* insert adds an element after the given iterator */
@@ -291,6 +303,7 @@ public:
 	       node->next = iter.curr_node->next;
 	       node->data = input;
 	       node->prev = iter.curr_node;
+	       iter.curr_node->next->prev = node;
 	       iter.curr_node->next = node;
 	       length++;
 	  }
@@ -311,17 +324,25 @@ public:
 		    exit(1);
 	       }
 	       else {
+		    Node * temp = iter.curr_node;
+		    cerr << *iter << endl;
+		    
 		    iter.curr_node->prev->next = iter.curr_node->next;
+		    
 		    iter.curr_node->next->prev = iter.curr_node->prev;
-		    delete iter.curr_node;
-		    iter++;
+		    iter.curr_node = iter.curr_node->next;
+		    cerr << *iter << endl;
+		    cerr << iter.curr_node->prev->data << endl;
+		    
+		    delete temp;
 	       }
+	       length--;
 	  }
 
      /* Destructor to delete elements */
      ~IntList()
 	  {
-	       // clear();
+	       clear();
 	       delete head;
 	       delete tail;
 	  }
@@ -331,31 +352,43 @@ public:
 	  {
 	       Iterator iter =  begin();
 	       Iterator iter2 = end();
-	       cout << iter.curr_node->data << " ";
-	       do{
-		    iter = iter++;
+	       if ( ! iter.curr_node ){
+		    cout << "Empty list. Nothing to print." << endl;
+	       }
+	       else{
+		    
 		    cout << iter.curr_node->data << " ";
-	       }		    		    
-	       while (iter != iter2);
-	       cout << endl;
+		    do{
+			 iter++;
+			 cout << iter.curr_node->data << " ";
+		    }		    		    
+		    while (iter != iter2);
+		    cout << endl;
+	       }
 	  }
      
 };
+
 int main()
 {
      IntList li;
-     li.push_front(10);
-     li.push_front(12);
-     li.push_front(13);
      li.push_front(14);
      li.push_back(29);
-     li.push_back(20);
-     
+     li.push_back(20); 
      li.print();
-     li.pop_front();
-     li.pop_back();
+     IntList::Iterator iter = li.begin();
+     li.insert(iter, 99);
+     li.insert(iter, 33);
+     iter++;
+     iter++;
+     li.print();
+     cerr << "iter is : " << *iter << endl;
+     // 14 33 99 29 20
+     li.remove(iter);
      li.print();
      
+//      li.clear();
+//      li.print();
      
 
      return 0;
