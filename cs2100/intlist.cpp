@@ -1,8 +1,13 @@
+// intlist.cpp : This is a doubly linked list implementation of function prototypes
+//               given in the accompanying file "list.h".
+// Author      : Sujeet Gholap
+
+
 #include <iostream>
 #include <cstdlib>
 using namespace std;
 
-struct Node 
+struct Node
 {
   int data;
   struct Node * next;
@@ -17,9 +22,7 @@ private:
      int length;
      
 public:
-     /* Class to access the elements of the list. We need a seperate class
-      * for this as we want to keep the pointers to the nodes private.
-      */
+     /* Class to access the elements of the list.*/
      class Iterator {
      private:
 	  Node * curr_node;
@@ -28,13 +31,8 @@ public:
 	  /* Constructors */
 	  Iterator()
 	       {
-		    curr_node = 0;
+		    curr_node = NULL;
 	       }
-	  
-// 	  Iterator(Node * node)
-// 	       {
-// 		    curr_node = node;
-// 	       }
 	  
 	  /* Copy constructor */
 	  Iterator(const Iterator & given_iter)
@@ -47,13 +45,13 @@ public:
 	  Iterator operator=(const Iterator & given_iter)
 	       {
 		    Node * node = new Node();
-		    if(given_iter.curr_node != 0){
+		    if(given_iter.curr_node != NULL){
 			 node->data = given_iter.curr_node->data;
 			 node->next = given_iter.curr_node->next;
 			 node->prev = given_iter.curr_node->prev;
 		    }
 		    else {
-			 node = 0;
+			 node = NULL;
 		    }
 		    curr_node = node;
 		    return *this;
@@ -62,7 +60,7 @@ public:
 
 	  /* Prefix and postfix operators, to move forward and backward in the list
 	   */
-	  Iterator operator++() // prefix
+	  Iterator operator++() // prefix (increment, return incremented)
 	       {
 		    if (! curr_node){
 			 cerr << "Error : End of the list. Can't incerment further;" << endl;
@@ -72,7 +70,7 @@ public:
 		    return *this;
 	       }
 	  
-	  Iterator operator++(int n) // postfix
+	  Iterator operator++(int n) // postfix (increment, return old one)
 	       {
 		    if (! curr_node){
 			 cerr << "Error : End of the list. Can't incerment further;" << endl;
@@ -83,7 +81,7 @@ public:
 		    return temp;
 	       }
 
-	  Iterator operator--(int n) // postfix
+	  Iterator operator--(int n) // postfix (decrement, return old one)
 	       {
 		    if (! curr_node){
 			 cerr << "Error : Beginning of the list. Can't decerment further;" << endl;
@@ -94,7 +92,7 @@ public:
 		    return temp;
 	       }
 	  
-	  Iterator operator--() // prefix
+	  Iterator operator--() // prefix (decrement, return decremented)
 	       {
 		    if (! curr_node){
 			 cerr << "Error : Beginning of the list. Can't decerment further;" << endl;
@@ -110,11 +108,6 @@ public:
 	       {
 	  	    return curr_node->data;
 	       }
-	  
-	  // int *operator->()
-	  //      {
-	  // 	    return 1 ;
-	  //      }
 	  
 
 	  /* Operators to compare two iterators */
@@ -145,14 +138,41 @@ public:
 	       }
 	  
      };
+private:
+     // Function to check whther the given itertor 
+     // is a valid iterator of the list or not
+     bool iterIsValid(Iterator iter)
+	  {
+	       Iterator temp = begin();
+	       Iterator last = end();
+	       while (temp != last ){
+		    if (temp == iter){
+			 return true;
+		    }
+		    temp++;
+	       }
+	       return false;
+	  }
+
+     // Function to terminate the program with an 
+     // error message when the iterator is not valid
+     void terminateOnInvalidIterator(Iterator iter)
+	  {
+	       if ( ! iterIsValid(iter) ){
+		    cerr << "Error : The iterator is not that of the given list." << endl;
+		    exit(1);
+	       }
+	  }
+     
+
 
 public:
      /* Constructor */
      IntList()
 	  {
 	       length = 0;
-	       head = 0;
-	       tail = 0;
+	       head = NULL;
+	       tail = NULL;
 	  }
 
      /* Copy constructor */
@@ -188,8 +208,8 @@ public:
 	  {
 	       Node * node = new Node();
 	       node->data = data;
-	       node->next = 0;
-	       node->prev = 0;
+	       node->next = NULL;
+	       node->prev = NULL;
 	       if (length == 0){
 		    tail = node;
 		    head = node;
@@ -207,8 +227,8 @@ public:
 	  {
 	       Node * node = new Node();
 	       node->data = data;
-	       node->next = 0;
-	       node->prev = 0;
+	       node->next = NULL;
+	       node->prev = NULL;
 	       if (length == 0){
 		    tail = node;
 		    head = node;
@@ -236,7 +256,7 @@ public:
 		    head = tail;
 	       }
 	       else{
-		    tail->next = 0;
+		    tail->next = NULL;
 	       }
 	       length--;
 	       delete temp;
@@ -256,7 +276,7 @@ public:
 		    tail = head;
 	       }
 	       else {
-		    head->prev = 0;
+		    head->prev = NULL;
 	       }
 	       length--;
 	       delete temp;
@@ -270,8 +290,8 @@ public:
 	       while(length){
 		    x = pop_front();
 	       }
-	       head = 0;
-	       tail = 0;
+	       head = NULL;
+	       tail = NULL;
 	  }
      
 
@@ -282,23 +302,34 @@ public:
       * complete. That is it should return the value obtained on
       * incrementing an iterator corresponding to the last element.
       */
+
+     // Note : as the list is doubly linked, to preserve the symmetry,
+     // the end() returns an iterator corrosponding to the tail.
+     // The increment and decrement operators return iterators with
+     // null node pointers if iterator corrosponding to head is decremented
+     // or that corrosponding to the tail is incermented
      Iterator begin() const
 	  {
-	       Iterator *iter = new Iterator();
-	       iter->curr_node = head;
-	       return *iter;
+	       Iterator iter;
+	       iter.curr_node = head;
+	       return iter;
 	  }
      
      Iterator end() const
 	  {
-	       Iterator *iter = new Iterator();
-	       iter->curr_node = tail;
-	       return *iter;
+	       Iterator iter;
+	       iter.curr_node = tail;
+	       return iter;
 	  }
 
      /* insert adds an element after the given iterator */
      void insert(const Iterator & iter, int input)
 	  {
+	       terminateOnInvalidIterator(iter);
+	       if ( iter.curr_node == NULL ){
+		    cerr << "Error : The iterator is not associated to any list. Or the list is empty." << endl;
+		    exit(1);
+	       }
 	       Node * node = new Node();
 	       node->next = iter.curr_node->next;
 	       node->data = input;
@@ -313,6 +344,7 @@ public:
       */
      void remove(Iterator & iter)
 	  {
+	       terminateOnInvalidIterator(iter);
 	       Iterator itr1 = begin();
 	       Iterator itr2 = end();
 	       if (iter ==  itr1){
@@ -325,15 +357,9 @@ public:
 	       }
 	       else {
 		    Node * temp = iter.curr_node;
-		    cerr << *iter << endl;
-		    
 		    iter.curr_node->prev->next = iter.curr_node->next;
-		    
 		    iter.curr_node->next->prev = iter.curr_node->prev;
 		    iter.curr_node = iter.curr_node->next;
-		    cerr << *iter << endl;
-		    cerr << iter.curr_node->prev->data << endl;
-		    
 		    delete temp;
 	       }
 	       length--;
@@ -348,49 +374,59 @@ public:
 	  }
 
      // Print the list (for debugging purposes)
-     void print()
-	  {
-	       Iterator iter =  begin();
-	       Iterator iter2 = end();
-	       if ( ! iter.curr_node ){
-		    cout << "Empty list. Nothing to print." << endl;
-	       }
-	       else{
+//      void print()
+// 	  {
+// 	       Iterator iter =  begin();
+// 	       Iterator iter2 = end();
+// 	       if ( ! iter.curr_node ){
+// 		    cout << "Empty list. Nothing to print." << endl;
+// 	       }
+// 	       else{
 		    
-		    cout << iter.curr_node->data << " ";
-		    do{
-			 iter++;
-			 cout << iter.curr_node->data << " ";
-		    }		    		    
-		    while (iter != iter2);
-		    cout << endl;
-	       }
-	  }
+// 		    cout << iter.curr_node->data << " ";
+// 		    do{
+// 			 iter++;
+// 			 cout << iter.curr_node->data << " ";
+// 		    }		    		    
+// 		    while (iter != iter2);
+// 		    cout << endl;
+// 	       }
+// 	  }
      
 };
 
-int main()
-{
-     IntList li;
-     li.push_front(14);
-     li.push_back(29);
-     li.push_back(20); 
-     li.print();
-     IntList::Iterator iter = li.begin();
-     li.insert(iter, 99);
-     li.insert(iter, 33);
-     iter++;
-     iter++;
-     li.print();
-     cerr << "iter is : " << *iter << endl;
-     // 14 33 99 29 20
-     li.remove(iter);
-     li.print();
+// int main()
+// {
+//      IntList li, li2;
+//      li.push_front(14);
+//      li.push_back(29);
+//      li.push_back(20); 
      
+//      li.print();
+//      IntList::Iterator iter = li.begin();
+//      li.insert(iter, 99);
+//      li.insert(iter, 33);
+//      cerr << "iter is : " << *iter << endl;
+//      iter++;
+//      iter++;
+//      li.print();
+//      cerr << "iter is : " << *iter << endl;
+//      // 14 33 99 29 20
+//      li.remove(iter);
+//      li.print();
+//      cerr << "iter is : " << *iter << endl;
+//      iter--;
+//      cerr << "iter is : " << *iter << endl;
+//      cerr << "end is : " << li.pop_back() << endl;
+//      li.print();
+//      cerr << "front is : " << li.pop_front() << endl;     
 //      li.clear();
+//      li.insert(iter, 9999);
+     
 //      li.print();
      
 
-     return 0;
-}
+//      return 0;
+// }
+
 
