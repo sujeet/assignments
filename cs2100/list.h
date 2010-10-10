@@ -68,7 +68,7 @@ public:
      // null node pointers if iterator corrosponding to head is decremented
      // or that corrosponding to the tail is incermented
 
-     Iterator first() const;
+     Iterator begin() const;
      Iterator end() const;
 
      /* insert adds an element after the given iterator */
