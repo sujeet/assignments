@@ -15,17 +15,17 @@ public :
      class Iterator 
      {
      private:
-	  Node * curr_node;
+          Node * curr_node;
      public :
-	  friend class IntList;
-	  Iterator ();
-	  Iterator (const Iterator&);
-	  Iterator& operator = (const Iterator &);
-	  Iterator operator ++ ();
-	  Iterator operator ++ (int);
-	  int operator * ();
-	  bool operator == (const Iterator &) const;
-	  bool operator != (const Iterator &) const;
+          friend class IntList;
+          Iterator ();
+          Iterator (const Iterator&);
+          Iterator& operator = (const Iterator &);
+          Iterator operator ++ ();
+          Iterator operator ++ (int);
+          int operator * ();
+          bool operator == (const Iterator &) const;
+          bool operator != (const Iterator &) const;
      };
      IntList();
      IntList(const IntList &);
@@ -38,7 +38,7 @@ public :
      void clear();
      Iterator begin() const;
      Iterator end() const;
-     void insert_after(const Iterator&, int);
+     void insert_after(Iterator&, int);
      void remove(Iterator &);
      void print();
      ~IntList();

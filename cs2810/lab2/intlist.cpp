@@ -24,8 +24,8 @@ IntList::Iterator IntList::Iterator::operator ++(int n)
 {
      // postfix : increment, return old one
      if (this->curr_node == NULL) {
-	  cerr << "ERROR : Can't increment the iterator." << endl;
-	  exit(-1);
+          cerr << "ERROR : Can't increment the iterator." << endl;
+          exit(-1);
      }
      IntList::Iterator return_iter(*this);
      this->curr_node = (this->curr_node)->next;
@@ -36,8 +36,8 @@ IntList::Iterator IntList::Iterator::operator ++()
 {
      // prefix : increment, return incremented
      if (this->curr_node == NULL) {
-	  cerr << "ERROR : Can't increment the iterator." << endl;
-	  exit(-1);
+          cerr << "ERROR : Can't increment the iterator." << endl;
+          exit(-1);
      }
      this->curr_node = (this->curr_node)->next;
      return *this;
@@ -46,8 +46,8 @@ IntList::Iterator IntList::Iterator::operator ++()
 int IntList::Iterator::operator *()
 {
      if (this->curr_node == NULL) {
-	  cerr << "ERROR : The iterator is not pointing to any data." << endl;
-	  exit(-1);
+          cerr << "ERROR : The iterator is not pointing to any data." << endl;
+          exit(-1);
      }
      return (this->curr_node)->data;
 }
@@ -81,10 +81,23 @@ IntList::IntList()
      this->head = NULL;
 }
 
-void IntList::insert_after(const IntList::Iterator& iter, int data)
+void IntList::insert_after(IntList::Iterator& iter, int data)
 {
-     Node *new_node = new Node(data, (iter.curr_node)->next);
-     (iter.curr_node)->next = new_node;
+     if (iter.curr_node == NULL) {
+          if (this->head == NULL) {
+               Node * new_node = new Node(data, NULL);
+               this->head = new_node;
+               iter.curr_node = new_node;
+          }
+          else {
+               cerr << "ERROR : The iterator is not pointing to any data and the list is not empty." << endl;
+          }
+     }
+     else {
+          Node *new_node = new Node(data, (iter.curr_node)->next);
+          (iter.curr_node)->next = new_node;
+     }
+     
 }
 
 void IntList::remove(IntList::Iterator& iter)
@@ -97,17 +110,17 @@ void IntList::remove(IntList::Iterator& iter)
      // after the pointed node is moved towards the
      // head by one node and the tail is deleted
      if (iter.curr_node == NULL){
-	  cerr << "ERROR : The iterator does not point to any data." << endl;
-	  exit(-1);
+          cerr << "ERROR : The iterator does not point to any data." << endl;
+          exit(-1);
      }
      Node * end_but_one;
      IntList::Iterator iter2(iter);
      while ((iter2.curr_node)->next != NULL) {
-	  // shift the data by one node towards head
-	  if ( iter2.curr_node->next->next == NULL) {
-	       end_but_one = iter2.curr_node;
-	  }
-	  (iter2.curr_node)->data = *(++iter2);
+          // shift the data by one node towards head
+          if ( iter2.curr_node->next->next == NULL) {
+               end_but_one = iter2.curr_node;
+          }
+          (iter2.curr_node)->data = *(++iter2);
      }
      end_but_one->next = NULL;	// make the last but one into tail
      delete iter2.curr_node;	// delete the tail
@@ -122,18 +135,18 @@ IntList::IntList(const IntList& list)
 {
      // deep copies the list
      if (list.head == NULL) {
-	  this->head = NULL;
+          this->head = NULL;
      }
      else {
-	  this->head = new Node;
-	  IntList::Iterator iter1 = this->begin(), iter2 = list.begin();
-	  (this->head)->data = (list.head)->data;
-	  iter2++;
-	  while (iter2 != list.end()) {
-	       this->insert_after(iter1, *iter2);
-	       iter1++;
-	       iter2++;
-	  }
+          this->head = new Node;
+          IntList::Iterator iter1 = this->begin(), iter2 = list.begin();
+          (this->head)->data = (list.head)->data;
+          iter2++;
+          while (iter2 != list.end()) {
+               this->insert_after(iter1, *iter2);
+               iter1++;
+               iter2++;
+          }
      }
 }
 
@@ -142,8 +155,8 @@ unsigned int IntList::length() const
      unsigned int length = 0;
      IntList::Iterator iter = this->begin();
      while (iter != this->end()){
-	  iter++;
-	  length++;
+          iter++;
+          length++;
      }
      return length;
 }
@@ -157,23 +170,23 @@ void IntList::push_front(int data)
 void IntList::push_back(int data)
 {
      if (this->head == NULL) {
-	  this->push_front(data);
+          this->push_front(data);
      }
      else {
-	  IntList::Iterator iter1 = this->begin();
-	  IntList::Iterator iter2;
-	  while (iter1 != this->end()) {
-	       iter2 = iter1++;
-	  }
-	  this->insert_after(iter2, data);
+          IntList::Iterator iter1 = this->begin();
+          IntList::Iterator iter2;
+          while (iter1 != this->end()) {
+               iter2 = iter1++;
+          }
+          this->insert_after(iter2, data);
      }
 }
 
 int IntList::pop_front()
 {
      if (this->head == NULL) {
-	  cerr << "ERROR : Can't pop from an empty list." << endl;
-	  exit(-1);
+          cerr << "ERROR : Can't pop from an empty list." << endl;
+          exit(-1);
      }
      int return_value = (this->head)->data;
      Node * old_head = this->head;
@@ -185,16 +198,16 @@ int IntList::pop_front()
 int IntList::pop_back() 
 {
      if (this->head == NULL) {
-	  cerr << "ERROR : Can't pop from an empty list." << endl;
-	  exit(-1);
+          cerr << "ERROR : Can't pop from an empty list." << endl;
+          exit(-1);
      }
      if (this->head->next == NULL) {
-	  return this->pop_front();
+          return this->pop_front();
      }
      IntList::Iterator iter1 = this->begin();
      IntList::Iterator iter2;
      while ((iter1.curr_node)->next != NULL) {
-	  iter2 = iter1++;
+          iter2 = iter1++;
      }
      int return_vaule = (iter1.curr_node)->data;
      delete iter1.curr_node;
@@ -206,7 +219,7 @@ void IntList::clear()
 {
      int length = this->length();
      for (int i = length; i > 0; i--) {
-	  this->pop_front();
+          this->pop_front();
      }
 }
 
@@ -219,7 +232,7 @@ void IntList::print()
 {
      IntList::Iterator iter;
      for (iter = this->begin(); iter != this->end(); iter++) {
-	  cout << *(iter) << " ";
+          cout << *(iter) << " ";
      }
      cout << endl;
 }
