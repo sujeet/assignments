@@ -1,0 +1,4 @@
+#ignore the autosave or backup files by gedit and emacs
+*~
+*#
+
