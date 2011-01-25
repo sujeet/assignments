@@ -1,3 +1,7 @@
+#ifndef INTLIST_H
+#define INTLIST_H
+
+
 class Node 
 { 
 public: 
@@ -44,3 +48,4 @@ public :
      ~IntList();
 };
 
+#endif

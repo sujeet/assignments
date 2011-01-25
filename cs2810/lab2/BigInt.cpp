@@ -5,30 +5,17 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <fstream>
+#include <iomanip>
 #include <cstdlib>
+#include <string>
 #include "intlist.h"
+#include "bigint.h"
+
+#define WIDTH 4 
+#define BASE 10000    
+#define TYPE int
 
 using namespace std;
-
-istream * in;
-ostream * out;
-const char END_COMMAND = 'q';
-const char ENDCHAR = '$';
-
-
-class BigInt 
-{
-public :
-     IntList * list;
-     char sign;
-     BigInt();
-     BigInt(const BigInt&);
-     BigInt& operator =(const BigInt &);
-     void flip_sign();
-     void trim_zeroes();
-     void print(ostream *);
-};
 
 BigInt::BigInt()
 {
@@ -64,44 +51,51 @@ void BigInt::flip_sign()
 
 void BigInt::trim_zeroes()
 {
-     int digit = this->list->pop_back();
-     while (digit == 0) {
+     TYPE digit = this->list->pop_back();
+     while ((digit == 0)&&(this->list->length() > 1)) {
           digit = this->list->pop_back();
      }
      this->list->push_back(digit);
 }
 
-void BigInt::print(ostream * out = &cout)
+ostream& operator<< (ostream& out, BigInt& num)
 {
-     IntList * temp = new IntList(*(this->list));
-     if (this->sign == '-') *out << '-';
-     for (int i = temp->length(); i > 0; i--){
-     	  *out << temp->pop_back();
+     IntList * temp = new IntList(*(num.list));
+     if (num.sign == '-') out << '-';
+     if (temp->length() > 0) {
+          out << temp->pop_back();
      }
-     *out << endl;
+     for (int i = temp->length(); i > 0; i--){
+          // in first run, print the most significant
+          // part of the bigint, then output the subsequent
+          // parts in a fixed width mode
+          out << setfill('0') << setw(WIDTH);
+     	  out << temp->pop_back();
+     }
+     return out;
 }
 
 BigInt add_bigints_sorted(BigInt shorter, BigInt longer)
 {
      IntList::Iterator answer_iter, short_iter, long_iter;
      BigInt answer;
-     int carry = 0;
-     int sum;
+     TYPE carry = 0;
+     TYPE sum;
      short_iter = shorter.list->begin();
      long_iter = longer.list->begin();
      answer_iter = answer.list->begin();
      for (unsigned int i = 0; i < shorter.list->length(); i++) {
           sum = *short_iter + *long_iter + carry ;
-          answer.list->insert_after(answer_iter, sum%10);
+          answer.list->insert_after(answer_iter, sum%BASE);
           if (i != 0 ) answer_iter ++;
-          carry = sum / 10;
+          carry = sum / BASE;
           short_iter ++;
           long_iter ++;
      }
      while (long_iter != longer.list->end()) {
           sum = *long_iter + carry;
-          answer.list->insert_after(answer_iter, sum%10);
-          carry = sum / 10;
+          answer.list->insert_after(answer_iter, sum%BASE);
+          carry = sum / BASE;
           answer_iter ++;
           long_iter ++;
      }
@@ -129,15 +123,15 @@ BigInt subtract_bigints_sorted(BigInt smaller, BigInt bigger)
      // smaller and bigger in terms of magnitude, not value
      IntList::Iterator answer_iter, small_iter, big_iter;
      BigInt answer;
-     int borrow = 0;
-     int difference;
+     TYPE borrow = 0;
+     TYPE difference;
      small_iter = smaller.list->begin();
      big_iter = bigger.list->begin();
      answer_iter = answer.list->begin();
      for (unsigned int i = 0; i < smaller.list->length(); i++) {
           difference = *big_iter - ( *small_iter + borrow );
           if ( difference < 0 ) {
-               difference = 10 + difference;
+               difference = BASE + difference;
                borrow = 1;
           }
           answer.list->insert_after(answer_iter, difference);
@@ -148,7 +142,7 @@ BigInt subtract_bigints_sorted(BigInt smaller, BigInt bigger)
      while (big_iter != bigger.list->end()) {
           difference = *big_iter - borrow;
           if ( difference < 0 ) {
-               difference = 10 + difference;
+               difference = BASE + difference;
                borrow = 1;
           }
           answer.list->insert_after(answer_iter, difference);
@@ -175,8 +169,8 @@ BigInt subtract_bigints(BigInt num1, BigInt num2)
      else {
           IntList list1(*(num1.list));
           IntList list2(*(num2.list));
-          int int1 = list1.pop_back();
-          int int2 = list2.pop_back();
+          TYPE int1 = list1.pop_back();
+          TYPE int2 = list2.pop_back();
           while (int1 == int2) {
                int1 = list1.pop_back();
                int2 = list2.pop_back();
@@ -188,21 +182,17 @@ BigInt subtract_bigints(BigInt num1, BigInt num2)
      }
 }
 
-BigInt multiply_bigint_by_digit(BigInt bigint, int digit)
+BigInt multiply_bigint_by_number(BigInt bigint, TYPE digit)
 {
-     if ((digit >9) || (digit < 0)) {
-          cerr << "ERROR : Only single digit int can multiply a BigInt." << endl;
-          exit(-1);
-     }
      BigInt answer;
      IntList::Iterator ans_iter = answer.list->begin();
      IntList::Iterator iter = bigint.list->begin();
-     int carry = 0;
-     int product;
+     TYPE carry = 0;
+     TYPE product;
      for (unsigned int i = 0; i < bigint.list->length(); i++) {
           product = ( (*iter) * digit ) + carry;
-          answer.list->insert_after(ans_iter, product%10);
-          carry = product / 10;
+          answer.list->insert_after(ans_iter, product%BASE);
+          carry = product / BASE;
           if (i != 0) ans_iter ++;
           iter++;
      }
@@ -217,9 +207,9 @@ BigInt multiply_bigints(BigInt num1, BigInt num2)
 {
      IntList::Iterator iter2 = num2.list->begin();
      BigInt product, answer;
-     answer.list->push_front(0);
+     answer.list->push_front(0); // left shift
      for (unsigned int i = 0; i < num2.list->length(); i++){
-          product = multiply_bigint_by_digit(num1, *iter2);
+          product = multiply_bigint_by_number(num1, *iter2);
           for (unsigned int j = 0; j < i; j++) {
                product.list->push_front(0);
           }
@@ -230,132 +220,27 @@ BigInt multiply_bigints(BigInt num1, BigInt num2)
      return answer;
 }
 
-BigInt read_bigint()
+BigInt bigint_from_string(string str)
 {
-     char digit;
      BigInt num;
-     *in >> digit;
-     if (digit == '-') {
+     IntList::Iterator iter = num.list->begin();
+     string substring;
+     TYPE value;
+     if (str[0] == '-') {
           num.sign = '-';
-          *in >> digit;
+          str.erase(0, 1);
      }
-     while (digit == '0') {
-          *in >> digit;
+     unsigned int str_length = str.length();
+     for (unsigned int i = 0; i < str_length/WIDTH; i++) {
+          substring = str.substr(str.length() - WIDTH);
+          str.erase(str.length() - WIDTH);
+          value = (TYPE) atol(substring.c_str());
+          num.list->insert_after(iter, value);
+          if (i != 0) iter++;
      }
-     while (digit != ENDCHAR) {
-          if ((digit <= '9')&&(digit >= '0')) {
-               num.list->push_front(int(digit - 48));
-          }
-          *in >> digit;
+     if (str.length() != 0) {
+          value = (TYPE) atoi(str.c_str());
+          num.list->insert_after(iter, value);
      }
      return num;
-}
-          
-void do_operation(char oper)
-{
-     switch (oper) {
-     case '+' :
-     {
-          BigInt num1 = read_bigint();
-          BigInt num2 = read_bigint();
-          BigInt ans;
-          if ( num1.sign == num2.sign ) ans = add_bigints(num1, num2);
-          else ans = subtract_bigints(num1, num2);
-          ans.print(out);
-          break;
-     }
-     case '-' :
-     {
-          BigInt num = read_bigint();
-          num.flip_sign();
-          num.print(out);
-          break;
-     }
-     case '*' :
-     {
-          BigInt num1 = read_bigint();
-          BigInt num2 = read_bigint();
-          BigInt ans = multiply_bigints(num1, num2);
-          ans.print(out);
-          break;
-     }
-     case '!' :
-     {
-          // not decided yet
-     }
-     }
-}
-
-void initiate_io(int argc, char ** argv, istream *& in, ostream *& out, ifstream& input, ofstream& output)
-{
-     // function which sets *in and *out according to the commandline arguments
-     switch (argc) {
-     case 1 :
-     {
-          in = &cin;
-          out = &cout;
-          break;
-     }
-     case 2 :
-     {
-          input.open(argv[1]);
-          in = &input;
-          out = &cout;
-          break;
-     }
-     case 3:
-     {
-          input.open(argv[1]);
-          output.open(argv[2]);
-          in = &input;
-          out = &output;
-          break;
-     }
-     default :
-          cerr << "ERROR : Too many arguments." << endl;
-          exit (-1);
-     }
-}
-
-void shut_down_io(int argc, char ** argv, istream *& in, ostream *& out, ifstream& input, ofstream& output)
-{
-     switch (argc) {
-     case 1 :
-     {
-          break;
-     }
-     case 2 :
-     {
-          input.close();
-          break;
-     }
-     case 3:
-     {
-          input.close();
-          output.close();                 
-          break;
-     }
-     }
-}
-
-int main( int argc, char ** argv)
-{
-     ifstream input;
-     ofstream output;
-     initiate_io(argc, argv, in, out, input, output);
-     // now use *in and *out normally as you would use cin and cout
-     char oper;                 // operator is a keyword and I can't think of a better word than oper
-     *in >> oper;
-     while (oper != END_COMMAND) {
-          do_operation(oper);
-          if (!(in->eof())){
-               *in >> oper;
-          }
-          if (in->eof()) {
-               break;
-          }
-     }
-
-     shut_down_io(argc, argv, in, out, input, output);
-     return 0;
 }
