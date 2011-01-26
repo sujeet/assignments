@@ -75,7 +75,7 @@ ostream& operator<< (ostream& out, BigInt& num)
      return out;
 }
 
-BigInt add_bigints_sorted(BigInt shorter, BigInt longer)
+BigInt add_bigints_sorted(const BigInt& shorter, const BigInt& longer)
 {
      IntList::Iterator answer_iter, short_iter, long_iter;
      BigInt answer;
@@ -107,7 +107,7 @@ BigInt add_bigints_sorted(BigInt shorter, BigInt longer)
      return answer;
 }
 
-BigInt add_bigints(BigInt num1, BigInt num2)
+BigInt add_bigints(const BigInt& num1, const BigInt& num2)
 {
      // note that by add, we mean that the sum of
      // the magnitudes of the two numbers is to be 
@@ -118,7 +118,7 @@ BigInt add_bigints(BigInt num1, BigInt num2)
      else return add_bigints_sorted(num2, num1);
 }
 
-BigInt subtract_bigints_sorted(BigInt smaller, BigInt bigger)
+BigInt subtract_bigints_sorted(const BigInt& smaller, const BigInt& bigger)
 {
      // smaller and bigger in terms of magnitude, not value
      IntList::Iterator answer_iter, small_iter, big_iter;
@@ -153,9 +153,8 @@ BigInt subtract_bigints_sorted(BigInt smaller, BigInt bigger)
      answer.trim_zeroes();
      return answer;
 }
-
      
-BigInt subtract_bigints(BigInt num1, BigInt num2)
+BigInt subtract_bigints(const BigInt& num1, const BigInt& num2)
 {
      // note that by subtract, we mean the difference 
      // between the magnitudes of the two numbers has
@@ -182,7 +181,20 @@ BigInt subtract_bigints(BigInt num1, BigInt num2)
      }
 }
 
-BigInt multiply_bigint_by_number(BigInt bigint, TYPE digit)
+const BigInt BigInt::operator +(const BigInt& num)
+{
+     if (this->sign == num.sign) return add_bigints(*this, num);
+     else return subtract_bigints(*this, num);
+}
+
+const BigInt BigInt::operator -(const BigInt& num)
+{
+     BigInt negative = num;
+     negative.flip_sign();
+     return (*this + negative);
+}
+
+BigInt multiply_bigint_by_positive_number(const BigInt& bigint, TYPE number)
 {
      BigInt answer;
      IntList::Iterator ans_iter = answer.list->begin();
@@ -190,7 +202,7 @@ BigInt multiply_bigint_by_number(BigInt bigint, TYPE digit)
      TYPE carry = 0;
      TYPE product;
      for (unsigned int i = 0; i < bigint.list->length(); i++) {
-          product = ( (*iter) * digit ) + carry;
+          product = ( (*iter) * number ) + carry;
           answer.list->insert_after(ans_iter, product%BASE);
           carry = product / BASE;
           if (i != 0) ans_iter ++;
@@ -200,16 +212,17 @@ BigInt multiply_bigint_by_number(BigInt bigint, TYPE digit)
           answer.list->insert_after(ans_iter, carry);
      }
      answer.trim_zeroes();
+     answer.sign = bigint.sign;
      return answer;
 }
      
-BigInt multiply_bigints(BigInt num1, BigInt num2)
+const BigInt BigInt::operator *(const BigInt& num)
 {
-     IntList::Iterator iter2 = num2.list->begin();
+     IntList::Iterator iter2 = num.list->begin();
      BigInt product, answer;
      answer.list->push_front(0); // left shift
-     for (unsigned int i = 0; i < num2.list->length(); i++){
-          product = multiply_bigint_by_number(num1, *iter2);
+     for (unsigned int i = 0; i < num.list->length(); i++){
+          product = multiply_bigint_by_positive_number(*this, *iter2);
           for (unsigned int j = 0; j < i; j++) {
                product.list->push_front(0);
           }
@@ -217,6 +230,7 @@ BigInt multiply_bigints(BigInt num1, BigInt num2)
           answer = add_bigints(answer, product);
      }
      answer.trim_zeroes();
+     if (this->sign != num.sign) answer.sign = '-';
      return answer;
 }
 
