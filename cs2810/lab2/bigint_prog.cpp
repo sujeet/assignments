@@ -9,7 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
-#include "bigint.h"
+#include "BigInt.h"
 
 using namespace std;
 

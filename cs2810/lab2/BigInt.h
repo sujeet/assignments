@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include "intlist.h"
+#include "IntList.h"
 
 #define TYPE int
 

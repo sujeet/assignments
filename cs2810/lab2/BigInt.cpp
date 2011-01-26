@@ -8,8 +8,8 @@
 #include <iomanip>
 #include <cstdlib>
 #include <string>
-#include "intlist.h"
-#include "bigint.h"
+#include "IntList.h"
+#include "BigInt.h"
 
 #define WIDTH 4 
 #define BASE 10000    
