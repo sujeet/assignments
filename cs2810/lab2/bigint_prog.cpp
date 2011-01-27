@@ -18,6 +18,16 @@ ostream * out;
 const char END_COMMAND = 'q';
 const char ENDCHAR = '$';
 
+BigInt::BigInt factorial(BigInt::BigInt num)
+{
+     if ((num == 1)||(num.sign == '-')){
+          BigInt::BigInt ans(1);
+          return ans;
+     }
+     else
+          return ( factorial(num -1) * num );
+}
+     
 string read_bigint_string()
 {
      string bigint_str;
@@ -46,8 +56,8 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          BigInt num1 ( read_bigint_string() );
-          BigInt num2 ( read_bigint_string() );
+          BigInt num1 = read_bigint_string();
+          BigInt num2 = read_bigint_string();
           BigInt ans = num1 + num2;
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;
@@ -59,7 +69,7 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          BigInt num ( read_bigint_string() );
+          BigInt num = read_bigint_string();
           num.flip_sign();
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;
@@ -71,8 +81,8 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          BigInt num1 ( read_bigint_string() );
-          BigInt num2 ( read_bigint_string() );
+          BigInt num1 = read_bigint_string();
+          BigInt num2 = read_bigint_string();
           BigInt ans = num1 * num2;
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;
@@ -84,9 +94,11 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          // not decided yet
+          BigInt num = read_bigint_string();
+          BigInt ans = factorial(num);
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;
+          *out << ans << ENDCHAR << endl;
      }
      }
 }

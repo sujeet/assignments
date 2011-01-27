@@ -32,6 +32,7 @@ public :
 
      /* operator overloads */
      BigInt& operator =(const BigInt &);
+     BigInt& operator =(std::string);
      BigInt& operator =(TYPE);
      const BigInt operator +(BigInt &);
      const BigInt operator -(BigInt &);
@@ -59,6 +60,9 @@ public :
      /* misc functions */
      void flip_sign();
      void trim_zeroes();
+
+     /* destructor */
+     ~BigInt();
 };
 
 #endif

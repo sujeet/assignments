@@ -25,6 +25,12 @@
 
 using namespace std;
 
+BigInt::~BigInt()
+{
+     this->list->clear();
+     delete this->list;
+}
+
 BigInt::BigInt()
 {
      this->sign = '+';
@@ -50,12 +56,18 @@ BigInt::BigInt (TYPE num)
      }
      IntList::Iterator iter = this->list->begin();
      TYPE value;
-     for (int i = 0; num > 0; i++) {
-          value = num % BASE;
-          num = num / BASE;
-          this->list->insert_after(iter, value);
-          if (i != 0) iter++;
+     if (num == 0) {
+          this->list->insert_after(iter, 0);
      }
+     else {
+          for (int i = 0; num > 0; i++) {
+               value = num % BASE;
+               num = num / BASE;
+               this->list->insert_after(iter, value);
+               if (i != 0) iter++;
+          }
+     }
+     
 }
 
 BigInt::BigInt (string str)
@@ -96,6 +108,11 @@ BigInt& BigInt::operator =(const BigInt& num)
      }
 }
      
+BigInt& BigInt::operator =(string str)
+{
+     BigInt bigint(str);
+     return (this->operator=(bigint));
+}
 BigInt& BigInt::operator =(TYPE num)
 {
      BigInt bigint(num);
@@ -264,7 +281,9 @@ ComparisonResult BigInt::compare_magnitude_with(BigInt& num)
           int1 = list1.pop_back();
           int2 = list2.pop_back();
      }
-     if (list1.length() == 0)
+     if ((list1.length() == 0) && (int1 == int2))
+          // the second condition above is for the cases
+          // when there is only one 'digit' in the bigint
           return IS_EQUAL;
      else if (int1 > int2)
           return IS_GREATER;
@@ -284,12 +303,12 @@ bool BigInt::operator ==(BigInt& num)
 bool BigInt::operator <(BigInt& num)
 {
      if ((this->sign == '+')&&(num.sign == '-'))
-          return true;
-     if ((this->sign == '-')&&(num.sign == '+'))
           return false;
+     if ((this->sign == '-')&&(num.sign == '+'))
+          return true;
      if (*this == num)
           return false;
-     if (this->sign == '-')
+     else if (this->sign == '-')
           return ( this->compare_magnitude_with(num) == IS_GREATER );
      else 
           return ( this->compare_magnitude_with(num) == IS_SMALLER );
@@ -440,3 +459,4 @@ const BigInt BigInt::operator *(TYPE num)
      BigInt bigint(num);
      return (*this) * (bigint);
 }
+
