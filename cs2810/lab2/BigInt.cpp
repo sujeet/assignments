@@ -11,9 +11,17 @@
 #include "IntList.h"
 #include "BigInt.h"
 
+#ifndef WIDTH
 #define WIDTH 4 
-#define BASE 10000    
+#endif
+
+#ifndef BASE
+#define BASE 10000
+#endif    
+
+#ifndef TYPE
 #define TYPE int
+#endif
 
 using namespace std;
 
@@ -30,6 +38,51 @@ BigInt::BigInt(const BigInt& num)
      this->list = new_list;
 }
 
+BigInt::BigInt (TYPE num)
+{
+     this->list = new IntList();
+     if (num >= 0) {
+          this->sign = '+';
+     }
+     else {
+          this->sign = '-';
+          num = 0 - num;
+     }
+     IntList::Iterator iter = this->list->begin();
+     TYPE value;
+     for (int i = 0; num > 0; i++) {
+          value = num % BASE;
+          num = num / BASE;
+          this->list->insert_after(iter, value);
+          if (i != 0) iter++;
+     }
+}
+
+BigInt::BigInt (string str)
+{
+     this->list = new IntList();
+     this->sign = '+';
+     IntList::Iterator iter = this->list->begin();
+     string substring;
+     TYPE value;
+     if (str[0] == '-') {
+          this->sign = '-';
+          str.erase(0, 1);
+     }
+     unsigned int str_length = str.length();
+     for (unsigned int i = 0; i < str_length/WIDTH; i++) {
+          substring = str.substr(str.length() - WIDTH);
+          str.erase(str.length() - WIDTH);
+          value = (TYPE) atol(substring.c_str());
+          this->list->insert_after(iter, value);
+          if (i != 0) iter++;
+     }
+     if (str.length() != 0) {
+          value = (TYPE) atoi(str.c_str());
+          this->list->insert_after(iter, value);
+     }
+}
+
 BigInt& BigInt::operator =(const BigInt& num)
 {
      if (this == &num) return *this;
@@ -43,6 +96,12 @@ BigInt& BigInt::operator =(const BigInt& num)
      }
 }
      
+BigInt& BigInt::operator =(TYPE num)
+{
+     BigInt bigint(num);
+     return (this->operator=(bigint));
+}
+     
 void BigInt::flip_sign()
 {
      if (this->sign == '-') this->sign = '+';
@@ -52,7 +111,7 @@ void BigInt::flip_sign()
 void BigInt::trim_zeroes()
 {
      TYPE digit = this->list->pop_back();
-     while ((digit == 0)&&(this->list->length() > 1)) {
+     while ((digit == 0)&&(this->list->length() > 0)) {
           digit = this->list->pop_back();
      }
      this->list->push_back(digit);
@@ -77,6 +136,7 @@ ostream& operator<< (ostream& out, BigInt& num)
 
 BigInt add_bigints_sorted(const BigInt& shorter, const BigInt& longer)
 {
+     // note that, shorter and longer basically denote the bigint list length
      IntList::Iterator answer_iter, short_iter, long_iter;
      BigInt answer;
      TYPE carry = 0;
@@ -107,11 +167,13 @@ BigInt add_bigints_sorted(const BigInt& shorter, const BigInt& longer)
      return answer;
 }
 
-BigInt add_bigints(const BigInt& num1, const BigInt& num2)
+BigInt add_bigints(BigInt& num1, BigInt& num2)
 {
      // note that by add, we mean that the sum of
      // the magnitudes of the two numbers is to be 
      // calculated.
+     num1.trim_zeroes();
+     num2.trim_zeroes();
      if (num1.list->length() < num2.list->length()) {
           return add_bigints_sorted(num1, num2);
      }
@@ -121,6 +183,8 @@ BigInt add_bigints(const BigInt& num1, const BigInt& num2)
 BigInt subtract_bigints_sorted(const BigInt& smaller, const BigInt& bigger)
 {
      // smaller and bigger in terms of magnitude, not value
+     // note that this 'sortedness' is different from the 
+     // one in add_bigints_sorted()
      IntList::Iterator answer_iter, small_iter, big_iter;
      BigInt answer;
      TYPE borrow = 0;
@@ -154,11 +218,13 @@ BigInt subtract_bigints_sorted(const BigInt& smaller, const BigInt& bigger)
      return answer;
 }
      
-BigInt subtract_bigints(const BigInt& num1, const BigInt& num2)
+BigInt subtract_bigints(BigInt& num1, BigInt& num2)
 {
      // note that by subtract, we mean the difference 
      // between the magnitudes of the two numbers has
      // to be calculated.
+     num1.trim_zeroes();
+     num2.trim_zeroes();
      if (num1.list->length() < num2.list->length()) {
           return subtract_bigints_sorted(num1, num2);
      }
@@ -181,17 +247,152 @@ BigInt subtract_bigints(const BigInt& num1, const BigInt& num2)
      }
 }
 
-const BigInt BigInt::operator +(const BigInt& num)
+ComparisonResult BigInt::compare_magnitude_with(BigInt& num)
+{
+     this->trim_zeroes();
+     num.trim_zeroes();
+     if (this->list->length() < num.list->length())
+          return IS_SMALLER;
+     if (this->list->length() > num.list->length())
+          return IS_GREATER;
+     
+     IntList list1(*(this->list));
+     IntList list2(*(num.list));
+     TYPE int1 = list1.pop_back();
+     TYPE int2 = list2.pop_back();
+     while ((int1 == int2)&&(list1.length() > 0)) {
+          int1 = list1.pop_back();
+          int2 = list2.pop_back();
+     }
+     if (list1.length() == 0)
+          return IS_EQUAL;
+     else if (int1 > int2)
+          return IS_GREATER;
+     else
+          return IS_SMALLER;
+}
+
+bool BigInt::operator ==(BigInt& num)
+{
+     if (this->sign != num.sign) 
+          return false;
+     else {
+          return (this->compare_magnitude_with(num) == IS_EQUAL);
+     }
+}
+
+bool BigInt::operator <(BigInt& num)
+{
+     if ((this->sign == '+')&&(num.sign == '-'))
+          return true;
+     if ((this->sign == '-')&&(num.sign == '+'))
+          return false;
+     if (*this == num)
+          return false;
+     if (this->sign == '-')
+          return ( this->compare_magnitude_with(num) == IS_GREATER );
+     else 
+          return ( this->compare_magnitude_with(num) == IS_SMALLER );
+}
+
+bool BigInt::operator >(BigInt& num)
+{
+     return (! ( (*this == num)|| (*this < num)) );
+}
+
+bool BigInt::operator <=(BigInt& num)
+{
+     return ( ! (*this > num) );
+}
+
+bool BigInt::operator >=(BigInt& num)
+{
+     return ( ! (*this < num) );
+}
+
+bool BigInt::operator ==(TYPE num)
+{
+     BigInt bigint(num);
+     return (*this == bigint);
+}
+
+bool BigInt::operator <(TYPE num)
+{
+     BigInt bigint(num);
+     return (*this < bigint);
+}
+
+bool BigInt::operator >(TYPE num)
+{
+     BigInt bigint(num);
+     return (*this > bigint);
+}
+
+bool BigInt::operator <=(TYPE num)
+{
+     BigInt bigint(num);
+     return (*this <= bigint);
+}
+
+bool BigInt::operator >=(TYPE num)
+{
+     BigInt bigint(num);
+     return (*this >= bigint);
+}
+
+const BigInt BigInt::operator +(BigInt& num)
 {
      if (this->sign == num.sign) return add_bigints(*this, num);
      else return subtract_bigints(*this, num);
 }
 
-const BigInt BigInt::operator -(const BigInt& num)
+const BigInt BigInt::operator +(TYPE num)
+{
+     BigInt bigint(num);
+     return *this + bigint;
+}
+
+BigInt BigInt::operator ++(int foo)
+{
+     // postfix : increment, return old one
+     BigInt old(*this);
+     *this = *this + 1;
+     return old;
+}
+
+BigInt BigInt::operator ++()
+{
+     // prefix : increment, return incremented
+     *this = *this + 1;
+     return *this;
+}
+
+const BigInt BigInt::operator -(BigInt& num)
 {
      BigInt negative = num;
      negative.flip_sign();
      return (*this + negative);
+}
+
+const BigInt BigInt::operator -(TYPE num)
+{
+     BigInt bigint(num);
+     return *this - bigint;
+}
+
+BigInt BigInt::operator --(int foo)
+{
+     // postfix : decrement, return old one
+     BigInt old(*this);
+     *this = *this - 1;
+     return old;
+}
+
+BigInt BigInt::operator --()
+{
+     // prefix : decrement, return decremented
+     *this = *this - 1;
+     return *this;
 }
 
 BigInt multiply_bigint_by_positive_number(const BigInt& bigint, TYPE number)
@@ -216,7 +417,7 @@ BigInt multiply_bigint_by_positive_number(const BigInt& bigint, TYPE number)
      return answer;
 }
      
-const BigInt BigInt::operator *(const BigInt& num)
+const BigInt BigInt::operator *(BigInt& num)
 {
      IntList::Iterator iter2 = num.list->begin();
      BigInt product, answer;
@@ -234,27 +435,8 @@ const BigInt BigInt::operator *(const BigInt& num)
      return answer;
 }
 
-BigInt bigint_from_string(string str)
+const BigInt BigInt::operator *(TYPE num)
 {
-     BigInt num;
-     IntList::Iterator iter = num.list->begin();
-     string substring;
-     TYPE value;
-     if (str[0] == '-') {
-          num.sign = '-';
-          str.erase(0, 1);
-     }
-     unsigned int str_length = str.length();
-     for (unsigned int i = 0; i < str_length/WIDTH; i++) {
-          substring = str.substr(str.length() - WIDTH);
-          str.erase(str.length() - WIDTH);
-          value = (TYPE) atol(substring.c_str());
-          num.list->insert_after(iter, value);
-          if (i != 0) iter++;
-     }
-     if (str.length() != 0) {
-          value = (TYPE) atoi(str.c_str());
-          num.list->insert_after(iter, value);
-     }
-     return num;
+     BigInt bigint(num);
+     return (*this) * (bigint);
 }

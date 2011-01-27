@@ -46,8 +46,8 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          BigInt num1 = bigint_from_string( read_bigint_string() );
-          BigInt num2 = bigint_from_string( read_bigint_string() );
+          BigInt num1 ( read_bigint_string() );
+          BigInt num2 ( read_bigint_string() );
           BigInt ans = num1 + num2;
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;
@@ -59,7 +59,7 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          BigInt num = bigint_from_string( read_bigint_string() );
+          BigInt num ( read_bigint_string() );
           num.flip_sign();
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;
@@ -71,8 +71,8 @@ void do_operation(char oper, int& counter)
           *out << counter << endl;
           counter ++;
           time_t start_time = time(NULL);
-          BigInt num1 = bigint_from_string( read_bigint_string() );
-          BigInt num2 = bigint_from_string( read_bigint_string() );
+          BigInt num1 ( read_bigint_string() );
+          BigInt num2 ( read_bigint_string() );
           BigInt ans = num1 * num2;
           time_t end_time = time(NULL);
           *out << difftime(end_time, start_time) << 's' << endl;

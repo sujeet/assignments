@@ -2,6 +2,10 @@
 #include <cstdlib>
 #include "IntList.h"
 
+#ifndef TYPE
+#define TYPE int
+#endif
+
 using namespace std;
 
 IntList::Iterator::Iterator()
@@ -14,8 +18,7 @@ IntList::Iterator::Iterator(const IntList::Iterator& iter)
      this->curr_node = iter.curr_node;
 }
 
-IntList::Iterator& IntList::Iterator::operator =(const IntList::Iterator& iter) 
-{
+IntList::Iterator& IntList::Iterator::operator =(const IntList::Iterator& iter) {
      this->curr_node = iter.curr_node;
      return *this;
 }
@@ -43,7 +46,7 @@ IntList::Iterator IntList::Iterator::operator ++()
      return *this;
 }
 
-int IntList::Iterator::operator *()
+TYPE IntList::Iterator::operator *()
 {
      if (this->curr_node == NULL) {
           cerr << "ERROR : The iterator is not pointing to any data." << endl;
@@ -81,7 +84,7 @@ IntList::IntList()
      this->head = NULL;
 }
 
-void IntList::insert_after(IntList::Iterator& iter, int data)
+void IntList::insert_after(IntList::Iterator& iter, TYPE data)
 {
      if (iter.curr_node == NULL) {
           if (this->head == NULL) {
@@ -161,13 +164,13 @@ unsigned int IntList::length() const
      return length;
 }
 
-void IntList::push_front(int data)
+void IntList::push_front(TYPE data)
 {
      Node * new_node = new Node(data, this->head);
      this->head = new_node;
 }
 
-void IntList::push_back(int data)
+void IntList::push_back(TYPE data)
 {
      if (this->head == NULL) {
           this->push_front(data);
@@ -182,20 +185,20 @@ void IntList::push_back(int data)
      }
 }
 
-int IntList::pop_front()
+TYPE IntList::pop_front()
 {
      if (this->head == NULL) {
           cerr << "ERROR : Can't pop from an empty list." << endl;
           exit(-1);
      }
-     int return_value = (this->head)->data;
+     TYPE return_value = (this->head)->data;
      Node * old_head = this->head;
      this->head = (this->head)->next;
      delete old_head;
      return return_value;
 }
 
-int IntList::pop_back() 
+TYPE IntList::pop_back() 
 {
      if (this->head == NULL) {
           cerr << "ERROR : Can't pop from an empty list." << endl;
@@ -209,7 +212,7 @@ int IntList::pop_back()
      while ((iter1.curr_node)->next != NULL) {
           iter2 = iter1++;
      }
-     int return_vaule = (iter1.curr_node)->data;
+     TYPE return_vaule = (iter1.curr_node)->data;
      delete iter1.curr_node;
      (iter2.curr_node)->next = NULL;
      return return_vaule;
@@ -217,8 +220,8 @@ int IntList::pop_back()
 
 void IntList::clear()
 {
-     int length = this->length();
-     for (int i = length; i > 0; i--) {
+     unsigned int length = this->length();
+     for (unsigned int i = length; i > 0; i--) {
           this->pop_front();
      }
 }
@@ -240,7 +243,7 @@ void IntList::print()
 // int main()
 // {
 //      IntList list;
-//      for (int i = 0; i < 7; i++){
+//      for (TYPE i = 0; i < 7; i++){
 // 	  list.push_front(i);
 //      }
 //      list.print();
@@ -248,12 +251,12 @@ void IntList::print()
 //      cout << list.pop_back() << endl;
 //      list.print();
 //      IntList::Iterator iter;
-//      for (int i = 19; i < 25; i++) {
+//      for (TYPE i = 19; i < 25; i++) {
 // 	  list.push_back(i);
 //      }
 //      list.print();
 //      list.clear();
-//      for (int i = 19; i < 25; i++) {
+//      for (TYPE i = 19; i < 25; i++) {
 // 	  list.push_back(i);
 //      }
 //      list.print();

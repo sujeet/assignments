@@ -1,14 +1,17 @@
 #ifndef INTLIST_H
 #define INTLIST_H
 
+#ifndef TYPE
+#define TYPE int
+#endif
 
 class Node 
 { 
 public: 
-     int data; 
+     TYPE data; 
      Node *next; 
      Node() {data = 0; next = NULL;} 
-     Node(int num, Node * next_node = NULL) {data = num; next = next_node;} 
+     Node(TYPE num, Node * next_node = NULL) {data = num; next = next_node;} 
 };     
 
 class IntList 
@@ -27,7 +30,7 @@ public :
           Iterator& operator = (const Iterator &);
           Iterator operator ++ ();
           Iterator operator ++ (int);
-          int operator * ();
+          TYPE operator * ();
           bool operator == (const Iterator &) const;
           bool operator != (const Iterator &) const;
      };
@@ -35,14 +38,14 @@ public :
      IntList(const IntList &);
      bool is_empty() const;
      unsigned int length() const;
-     void push_front(int);
-     void push_back(int);
-     int pop_front();
-     int pop_back();
+     void push_front(TYPE);
+     void push_back(TYPE);
+     TYPE pop_front();
+     TYPE pop_back();
      void clear();
      Iterator begin() const;
      Iterator end() const;
-     void insert_after(Iterator&, int);
+     void insert_after(Iterator&, TYPE);
      void remove(Iterator &);
      void print();
      ~IntList();
