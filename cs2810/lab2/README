@@ -1,0 +1,64 @@
+____________________________________________________
+Author : Sujeet Gholap <sujeetgholap@gmail.com>
+Aim    : To implement big integers arithmatic in C++
+====================================================
+To compile : Use the command 
+
+             'make'
+
+             However, there is an alternate 
+             possibility. You can use the command 
+
+             'make bigint_ll'
+
+             This gives a binary made with bigint
+             implemented with long long int as 
+             intenal storage type, which results in
+             faster operations.
+
+====================================================
+Why two different internal storage types?
+
+    The iso C++ standard doen't allow long long int
+as a type. Hence for portability and standards' sake
+the version which uses int as internal storage type
+is the default one.
+
+====================================================
+The BigInt Class :
+
+    The BigInt.h is header file containing useful
+functions and methods of BigInt class. This is
+written is such a way that it can be used in other
+programs also (like a library).
+    I have tried to make BigInt interface as
+intuitive as possible. Following are some valid code
+example which show the usage of BigInt class. For
+all the available functions and definitions, read
+the BigInt.h file.
+
+___________________________________________  
+|#include <iostream>                      |  
+|#include "BigInt.h"                      | 
+|                                         | 
+|int main() {                             | 
+|    BigInt a, b, c, d, e;                | 
+|    a = -43876389473984397238703027;     | 
+|    b = "84798378943874";                | 
+|    c = a + b;                           | 
+|    d = a++;                             | 
+|    e = --b;                             | 
+|    b = b - 3873;                        | 
+|    cout << a << endl;                   | 
+|    cout << boolalpha << (a < b) << endl;| 
+|    cout << b << endl;                   | 
+|    return 0;                            | 
+|}                                        | 
+|_________________________________________| 
+
+The output is like this 
+__________________________________________ 
+|-43876389473984397238703027             | 
+|true                                    | 
+|84798378940000                          | 
+|________________________________________|
