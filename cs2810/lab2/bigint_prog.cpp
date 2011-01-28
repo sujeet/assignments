@@ -1,8 +1,8 @@
-/////////////////////////////////////////////////////////////////////////////////////////
-// roll number                    : cs09b010                                           //
-// name                           : sujeet gholap <sujeetgholap@gmail.com>             //
-// aim                            : to implement a class BigInt to handle big integers //
-/////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// roll number   : cs09b010                                           //
+// name          : sujeet gholap <sujeetgholap@gmail.com>             //
+// aim           : to implement a class BigInt to handle big integers //
+////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include <fstream>
@@ -129,7 +129,10 @@ void initiate_io(int argc, char ** argv, istream *& in, ostream *& out, ifstream
           break;
      }
      default :
-          cerr << "ERROR : Too many arguments." << endl;
+          cerr << endl;
+          cerr << "Usage :" << argv[0] << " [input_file [output_file]]" << endl;
+          cerr << "Total " << argc -1 << " (more than two) arguments were given." << endl;
+          cerr << endl;
           exit (-1);
      }
 }
