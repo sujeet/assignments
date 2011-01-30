@@ -147,7 +147,8 @@ IntList::IntList(const IntList& list)
           IntList::Iterator iter1 = this->begin(), iter2 = list.begin();
           (this->head)->data = (list.head)->data;
           ++iter2;
-          while (iter2 != list.end()) {
+          IntList::Iterator null_iter; // this is same as one returned by list.end()
+          while (iter2 != null_iter) {
                this->insert_after(iter1, *iter2);
                ++iter1;
                ++iter2;
@@ -159,7 +160,8 @@ unsigned int IntList::length() const
 {
      unsigned int length = 0;
      IntList::Iterator iter = this->begin();
-     while (iter != this->end()) {
+     IntList::Iterator null_iter; // this is same as one returned by list.end()
+     while (iter != null_iter) {
           ++iter;
           ++length;
      }
@@ -180,7 +182,8 @@ void IntList::push_back(TYPE data)
      else {
           IntList::Iterator iter1 = this->begin();
           IntList::Iterator iter2;
-          while (iter1 != this->end()) {
+          IntList::Iterator null_iter; // this is same as one returned by list.end()
+          while (iter1 != null_iter) {
                iter2 = iter1;
                ++iter1;
           }
@@ -238,7 +241,8 @@ IntList::~IntList()
 void IntList::print()
 {
      IntList::Iterator iter;
-     for (iter = this->begin(); iter != this->end(); ++iter) {
+     IntList::Iterator null_iter; // this is same as one returned by list.end()
+     for (iter = this->begin(); iter != null_iter; ++iter) {
           cout << *(iter) << " ";
      }
      cout << endl;

@@ -175,7 +175,8 @@ BigInt add_bigints_sorted(const BigInt& shorter, const BigInt& longer)
           ++short_iter;
           ++long_iter;
      }
-     while (long_iter != longer.list->end()) {
+     IntList::Iterator null_iter; // this is same as one returned by list.end()
+     while (long_iter != null_iter) {
           sum = *long_iter + carry;
           answer.list->insert_after(answer_iter, sum%BASE);
           carry = sum / BASE;
@@ -239,7 +240,8 @@ BigInt subtract_bigints_sorted(const BigInt& smaller, const BigInt& bigger)
           ++small_iter;
           ++big_iter;
      }
-     while (big_iter != bigger.list->end()) {
+     IntList::Iterator null_iter; // this is same as one returned by list.end()
+     while (big_iter != null_iter) {
           difference = *big_iter - borrow;
           if ( difference < 0 ) {
                difference = BASE + difference;
