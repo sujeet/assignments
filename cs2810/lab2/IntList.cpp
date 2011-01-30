@@ -75,7 +75,9 @@ IntList::Iterator IntList::begin() const
 IntList::Iterator IntList::end() const
 {
      IntList::Iterator iter;
-     iter.curr_node = NULL;
+     // No need to set curr_node to NULL
+     // because that is the default constructor
+     // for iterator
      return iter;
 }
 
@@ -144,11 +146,11 @@ IntList::IntList(const IntList& list)
           this->head = new Node;
           IntList::Iterator iter1 = this->begin(), iter2 = list.begin();
           (this->head)->data = (list.head)->data;
-          iter2++;
+          ++iter2;
           while (iter2 != list.end()) {
                this->insert_after(iter1, *iter2);
-               iter1++;
-               iter2++;
+               ++iter1;
+               ++iter2;
           }
      }
 }
@@ -157,9 +159,9 @@ unsigned int IntList::length() const
 {
      unsigned int length = 0;
      IntList::Iterator iter = this->begin();
-     while (iter != this->end()){
-          iter++;
-          length++;
+     while (iter != this->end()) {
+          ++iter;
+          ++length;
      }
      return length;
 }
@@ -179,7 +181,8 @@ void IntList::push_back(TYPE data)
           IntList::Iterator iter1 = this->begin();
           IntList::Iterator iter2;
           while (iter1 != this->end()) {
-               iter2 = iter1++;
+               iter2 = iter1;
+               ++iter1;
           }
           this->insert_after(iter2, data);
      }
@@ -210,7 +213,8 @@ TYPE IntList::pop_back()
      IntList::Iterator iter1 = this->begin();
      IntList::Iterator iter2;
      while ((iter1.curr_node)->next != NULL) {
-          iter2 = iter1++;
+          iter2 = iter1;
+          ++iter1;
      }
      TYPE return_vaule = (iter1.curr_node)->data;
      delete iter1.curr_node;
@@ -234,7 +238,7 @@ IntList::~IntList()
 void IntList::print()
 {
      IntList::Iterator iter;
-     for (iter = this->begin(); iter != this->end(); iter++) {
+     for (iter = this->begin(); iter != this->end(); ++iter) {
           cout << *(iter) << " ";
      }
      cout << endl;
